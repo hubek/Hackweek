@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "Hackweek": {
+      "applicationId": "ps4lMG44r8m2Vf2Ag12WqPX4raxe5AS3JaKQnXZN"
+    },
+    "_default": {
+      "link": "Hackweek"
+    }
+  }
+}
