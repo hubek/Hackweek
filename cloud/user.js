@@ -1,3 +1,5 @@
+//================== End Points =====================
+
 //================== Register User ===================
 Parse.Cloud.define("register", function(request, response) {
   
@@ -5,21 +7,45 @@ Parse.Cloud.define("register", function(request, response) {
   
   var user = new Parse.User();
 
-  user.set( "username", request.param( 'userName' ) ) ;
-  user.set( "password", request.param( 'password' ) );
-  user.set( "email", request.param( 'email' ) );
-  user.set( "ngo", request.param( 'ngo' ) );
+  user.set( "username", request.params.username ) ;
+  user.set( "password", request.params.password );
+  user.set( "email", request.params.email );
+  user.set( "ngo", request.params.ngo );
 
   user.signUp(null, {
     
     success: function(user) {
-      response.success( user );
+
+      var query = new Parse.Query( Parse.Role ); 
+      query.equalTo( "name", request.params.role ); 
+
+      query.find({ 
+
+         success: function( roles ) {
+
+          roles[0].getUsers().add( user );
+          roles[0].save();
+          
+          response.success( user );
+         },
+
+        error: function( error ){
+
+          response.error( error );
+
+        }
+      });
     },
 
     error: function(user, error) {
-      response.error( "Can't Register" );
+
+      response.error( error );
+      
     }
   });
 
 });
 //================== Register User ===================
+
+
+//================== End Points =====================
