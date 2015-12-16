@@ -19,12 +19,11 @@ Parse.Cloud.define("ngoByDistance", function(request, response) {
 });
 
 function sortByDistance(lat, long, ngos) {
+	console.log("sortByDistance: ");
 	var newNgos = new Array();
 	for (var i = 0; i < ngos.length; i++) {
-		console.log("sortByDistance: " + i);
 		newNgos[i] = JSON.parse(JSON.stringify(ngos[i]));
     newNgos[i].distance = 1;
-		console.log("distance: " + newNgos[i].distance);
   };		
 	return newNgos;				
 }
