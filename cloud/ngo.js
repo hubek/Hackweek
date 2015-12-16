@@ -1,5 +1,5 @@
 //================== Create NGO ===================
-Parse.Cloud.define("create_ngo", function(request, response) {
+Parse.Cloud.define("create_ngo", function( request, response ) {
 
   var ngo = new Parse.Object( "NgoDetails" );
 
@@ -7,50 +7,53 @@ Parse.Cloud.define("create_ngo", function(request, response) {
   ngo.set( "description", request.params.description );
   ngo.set( "address", request.params.address );
 
-  ngo.save( null, {
-
-  	success: function( ngo ){
-
-  		response.success( ngo );
-
-  	},
-
-  	error: function( error ){
-
-  		response.error( error );
-  	}
-
-  });
-
-});
-//================== Create NGO ===================
-
-Parse.Cloud.define('myHttpRequest', function(request, response) {
-  
   Parse.Cloud.httpRequest({
   	
   	method: "POST",
   	url: 'https://maps.googleapis.com/maps/api/geocode/json',
 
   	params: {
-  		address : "Bayreuther Straße 8, Berlin",
+  		address : request.params.address,
   		key: "AIzaSyADYKV1S-640B-KTxkkD-HXb8slGMCvb2I"
     },
     
-    success: function(httpResponse) {
-    	var res = httpResponse.data;
-    	if(res.status == "OK"){
-    		var langLat = res.results[0].geometry.location;
+    success: function( googleResponse ) {
+    	var data = googleResponse.data;
+
+    	console.error( data );
+
+    	console.error( data.results[0].geometry.location );
+
+    	if( data.status == "OK")
+    	{
+    		var langLat = data.results[0].geometry.location;
             console.error(langLat);
+
+            console.error(langLat.latitude);
+            console.error(langLat.lng);
+
+            var point = new Parse.GeoPoint({latitude: 40.0, longitude: -30.0});
+
+            ngo.set( "address", langLat );
         }
 
-        response.success( httpResponse.data );
+        ngo.save( null, {
+        	success: function( ngo ){
+        		response.success( ngo );
+        	},
+
+        	error: function( error ){
+        		response.error( error );
+        	}
+        });
     },
 
-    error: function(httpResponse) {
-    	console.error('Request failed with response code ' + httpResponse.status);
-    	response.error( httpResponse.status );
+    error: function( googleResponse ) {
+    	console.error('Request failed with response code ' + googleResponse.status);
+    	response.error( 'Invalid Address ' );
     }
+
   });
 
 });
+//================== Create NGO ===================
