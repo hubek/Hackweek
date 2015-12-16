@@ -33,7 +33,8 @@ Parse.Cloud.define('myHttpRequest', function(request, response) {
   	url: 'https://maps.googleapis.com/maps/api/geocode/json',
 
   	params: {
-  		address : "Bayreuther Straße 8, Berlin"
+  		address : "Bayreuther Straße 8, Berlin",
+  		key: "AIzaSyADYKV1S-640B-KTxkkD-HXb8slGMCvb2I"
     },
     
     success: function(httpResponse) {
