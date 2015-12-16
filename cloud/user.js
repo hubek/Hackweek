@@ -8,7 +8,12 @@ Parse.Cloud.define("register", function(request, response) {
   user.set( "username", request.params.username ) ;
   user.set( "password", request.params.password );
   user.set( "email", request.params.email );
-  user.set( "ngo", request.params.ngo );
+  
+  if( request.params.ngo )
+  {
+    user.set( "ngo", pointerTo( request.params.ngo, "NgoDetails" ) );
+  }
+  
 
   user.signUp(null, {
     
@@ -86,3 +91,7 @@ Parse.Cloud.define("logout", function(request, response) {
 
 });
 //================== Logout User ===================
+
+function pointerTo( objectId, klass ) {
+    return { __type: "Pointer", className: klass, objectId: objectId };
+}

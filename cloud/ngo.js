@@ -89,15 +89,16 @@ Parse.Cloud.define("list_ngos", function( request, response ) {
 
 var query = new Parse.Query("NgoDetails");
 
-query.find.then(
-	function( ngos)
+query.find({
+	success: function( ngos)
 	{
 		response.success( ngos );
 	},
-	function( error )
+	error: function( error )
 	{	
 		response.success( error);
 
-	});
+	}
+ });
 });
 //================== List NGOs ===================
