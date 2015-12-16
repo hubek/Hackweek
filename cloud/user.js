@@ -1,5 +1,3 @@
-//================== End Points =====================
-
 //================== Register User ===================
 Parse.Cloud.define("register", function(request, response) {
   
@@ -48,4 +46,43 @@ Parse.Cloud.define("register", function(request, response) {
 //================== Register User ===================
 
 
-//================== End Points =====================
+//================== Login User ===================
+Parse.Cloud.define("login", function(request, response) {
+  
+  Parse.Cloud.useMasterKey();
+
+  if ( Parse.User.current() ) {
+
+    Parse.User.logOut();
+
+  } 
+
+  Parse.User.logIn( request.params.username, request.params.password, {
+    
+    success: function(user) {
+
+      response.success( user );
+
+    },
+
+    error: function(user, error) {
+
+      response.error( error );
+      
+    }
+  });
+
+});
+//================== Login User ===================
+
+//================== Logout User ===================
+Parse.Cloud.define("logout", function(request, response) {
+  
+  Parse.Cloud.useMasterKey();
+
+  Parse.User.logOut();
+
+  response.success( "logged out !" );
+
+});
+//================== Logout User ===================
