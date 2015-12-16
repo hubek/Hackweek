@@ -1,59 +1,103 @@
-//================== Create NGO ===================
-Parse.Cloud.define("create_ngo", function( request, response ) {
+//================== Create or update NGO ===================
+Parse.Cloud.define("update_ngo", function( request, response ) {
 
-  var ngo = new Parse.Object( "NgoDetails" );
+var query = new Parse.Query("NgoDetails");
 
-  ngo.set( "name", request.params.name );
-  ngo.set( "description", request.params.description );
-  ngo.set( "address", request.params.address );
+query.get( request.params.id ).then(
+	function( ngo )
+	{
+		return ngo;
+	},
+	function( error )
+	{	
+		return Parse.Promise.as( new Parse.Object( "NgoDetails" ) );
 
-  Parse.Cloud.httpRequest({
-  	
-  	method: "POST",
-  	url: 'https://maps.googleapis.com/maps/api/geocode/json',
+	}).then(
 
-  	params: {
-  		address : request.params.address,
-  		key: "AIzaSyADYKV1S-640B-KTxkkD-HXb8slGMCvb2I"
-    },
-    
-    success: function( googleResponse ) {
-    	var data = googleResponse.data;
+	function( ngo )
+	{
+		ngo.set( "name", request.params.name );
+		ngo.set( "description", request.params.description );
+		ngo.set( "address", request.params.address );
 
-    	console.error( data );
+		Parse.Cloud.httpRequest({
 
-    	console.error( data.results[0].geometry.location );
+			method: "POST",
+			url: 'https://maps.googleapis.com/maps/api/geocode/json',
 
-    	if( data.status == "OK")
-    	{
-    		var langLat = data.results[0].geometry.location;
-            console.error(langLat);
+			params: {
+				address : request.params.address,
+				key: "AIzaSyADYKV1S-640B-KTxkkD-HXb8slGMCvb2I"
+			},
 
-            console.error(langLat.latitude);
-            console.error(langLat.lng);
+			success: function( googleResponse ) {
 
-            var point = new Parse.GeoPoint({latitude: 40.0, longitude: -30.0});
+				var data = googleResponse.data;
+				console.error( "Working !!" );
 
-            ngo.set( "address", langLat );
-        }
+				if( data.status == "OK")
+				{
+					var langLat = data.results[0].geometry.location;
+					var point = new Parse.GeoPoint( { latitude: langLat.lat, longitude: langLat.lng } );
+					ngo.set( "coordinates", point );
+				}
 
-        ngo.save( null, {
-        	success: function( ngo ){
-        		response.success( ngo );
-        	},
+				ngo.save( null ).then(
 
-        	error: function( error ){
-        		response.error( error );
-        	}
-        });
-    },
+					function( ngo ){
+						response.success( ngo );
+					},
 
-    error: function( googleResponse ) {
-    	console.error('Request failed with response code ' + googleResponse.status);
-    	response.error( 'Invalid Address ' );
-    }
+					function( error ){
+						response.error( error );
+					}
+				);
+			},
 
-  });
-
+			error: function( googleResponse ) {
+				response.error( 'Invalid Address ' + googleResponse );
+			}
+		});
+	},
+	function(error)
+	{
+		response.error( error );
+	});
 });
-//================== Create NGO ===================
+//================== Create or update NGO ===================
+
+//================== Get NGO ===================
+Parse.Cloud.define("get_ngo", function( request, response ) {
+
+var query = new Parse.Query("NgoDetails");
+
+query.get( request.params.id ).then(
+	function( ngo )
+	{
+		response.success( ngo );
+	},
+	function( error )
+	{	
+		response.success( error);
+
+	});
+});
+//================== Get NGO ===================
+
+//================== List NGOs ===================
+Parse.Cloud.define("list_ngos", function( request, response ) {
+
+var query = new Parse.Query("NgoDetails");
+
+query.find.then(
+	function( ngos)
+	{
+		response.success( ngos );
+	},
+	function( error )
+	{	
+		response.success( error);
+
+	});
+});
+//================== List NGOs ===================
