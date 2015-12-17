@@ -19,9 +19,68 @@ function error( response, error )
 
 function queryStocks( params, response )
 {	
-	response.success( params );
+
+	var categoryQueries = getCategoryQueries( params["category"] );
+	
+	var genderPointers = getGenderPointers( params["gender"] );
+
+	console.error( "Category Queries" + categoryQueries );
+	console.error( "Gender Queries" + genderPointers );
+
+	//========= Main Query 
+	var mainQuery = new Parse.Query("Stock");
+
+	mainQuery._orQuery( categoryQueries );
+
+	mainQuery.containedIn( "gender", genderPointers );
+
+	mainQuery.find( {
+		success: function( result ) 
+		{
+			response.success( result );
+
+		},
+		error: function( error )
+		{
+			response.success( error );
+		}
+	});
 }
 
+//============== Get Categories Or Query ==============
+function getCategoryQueries( categories )
+{
+	var queries = new Array();
+
+	for (var i = 0; i < categories.length; i++) 
+	{
+		var query = new Parse.Query("Stock");
+		
+		query.equalTo( "category", pointerTo( categories[i], "Category" ));
+		
+		queries.push( query );
+	}
+
+	return queries;
+}
+//============== Get Categories Or Query ==============
+
+//============== Get Gender Pointer ==============
+function getGenderPointers( ids )
+{
+	var pointers = new Array();
+
+	for (var i = 0; i < ids.length; i++) 
+	{
+		pointers.push( pointerTo( ids[i], "Gender" ) );
+	}
+
+	return pointers;
+}
+//============== Get Gender Pointer ==============
+
+
+//============== Get GeoPoint From Address ============
 function getGeoPoint( params, response )
 {
 	if( params["coords"] )
@@ -62,5 +121,10 @@ function getGeoPoint( params, response )
 			);
 	}
 }
-//============= Get GeoPoint From Address ==============
+//============== Get GeoPoint From Address ============
+
+function pointerTo( objectId, klass ) 
+{
+    return { __type: "Pointer", className: klass, objectId: objectId };
+}
 
