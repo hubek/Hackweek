@@ -36,9 +36,9 @@ Parse.Cloud.define("stockCurrentByDistance", function(request, response) {
 
 	orQuery.find( function(results) {
       console.log("all Categories: " + results)
-			//var results2 = sortByDistance(lat, long, results);	
-      //console.log("all Categories by distance: " + results2)
-      response.success(results);
+			var results2 = sortByDistance(lat, long, results);	
+      console.log("all Categories by distance: " + results2)
+      response.success(results2);
     }, function(error) {
       response.error("all Categories failed");
     }
@@ -84,4 +84,36 @@ function prepareQuery(columnName, pointer) {
 
 function pointerTo( objectId, klass ) {
     return { __type: "Pointer", className: klass, objectId: objectId };
+}
+
+function sortByDistance(lat, long, ngos) {
+	console.log("sortByDistance: ");
+	var newNgos = ngosWithDistance(lat, long, ngos);
+	newNgos.sort(compareByDistance);
+	return newNgos;				
+}
+
+function ngosWithDistance(lat, long, ngos) {
+	var newNgos = new Array();
+	for (var i = 0; i < ngos.length; i++) {
+		newNgos[i] = JSON.parse(JSON.stringify(ngos[i]));
+		var ngoLat = newNgos[i].ngo.coordinates.latitude;
+		var ngoLong = newNgos[i].ngo.coordinates.longitude
+    newNgos[i].ngo.distance = dist(long-ngoLong, lat-ngoLat);
+  };		
+	return newNgos;	
+}
+
+function dist(x1,y1,x2,y2){ 
+  if(!x2) x2=0; 
+  if(!y2) y2=0;
+  return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)); 
+}
+
+function compareByDistance(a,b) {
+  if (a.ngo.distance < b.ngo.distance)
+    return -1;
+  if (a.ngo.distance > b.ngo.distance)
+    return 1;
+  return 0;
 }
