@@ -5,5 +5,5 @@ require('cloud/search.js');
 require('cloud/stock.js');
 require('cloud/shipment.js');
 require('cloud/combinedCategorySearch.js');
-require('cloud/search_try.js');
+require('cloud/search_stocks.js');
 require('cloud/stockCurrentByDistance.js');
