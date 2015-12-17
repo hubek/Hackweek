@@ -50,17 +50,9 @@ function queryStocks( params, response )
 
 				searchResult["stock"] = results[i];
 				
+				var ngoLocation = results[i].get("ngo").get("coordinates");
 
-				var ngo = results[i].get("ngo");
-
-				var ngoLocation = ngo.get("coordinates");
-
-
-				var point = new Parse.GeoPoint(ngoLocation);
-
-
-				var distance = point.kilometersTo( params["coords"] );
-
+				var distance = ngoLocation.kilometersTo( params["coords"] );
 
 				searchResult["distance"] = distance;
 
@@ -119,6 +111,11 @@ function getGeoPoint( params, callback )
 {
 	if( exists( params["coords"] ) ) 
 	{
+		var point = new Parse.GeoPoint( { latitude: params["coords"]["lat"], 
+			longitude: params["coords"]["lng"] } );
+
+		params["coords"] = point;
+
 		callback.success( params ) ;
 	}
 	else
