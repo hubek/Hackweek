@@ -36,6 +36,8 @@ function queryStocks( params, response )
 
 	mainQuery.containedIn( "gender", genderPointers );
 
+	mainQuery.greaterThan( "current", 0 );
+
 	mainQuery.include( [ "gender", "ngo", "category", "size"] );
 
 	mainQuery.find().then( 
@@ -46,25 +48,42 @@ function queryStocks( params, response )
 
 			for( var i =0 ; i < results.length ; i++ )
 			{
+				//==== set stock
 				var searchResult = new Object();
 
 				searchResult["stock"] = results[i];
 				
+				//===== set distance
 				var ngoLocation = results[i].get("ngo").get("coordinates");
 
 				var distance = ngoLocation.kilometersTo( params["coords"] );
 
 				searchResult["distance"] = distance;
 
+				//=== set unique key
+				var ngoId = results[i].get("ngo").id ;
+				var categoryId = results[i].get("category").id;
+				var genderId = results[i].get("gender").id;
+				
+				var key = ngoId + categoryId + genderId;
+
+				searchResult["refKey"] = key;
+
+                //=== add result
 				filteredSearchResults[i] = searchResult;
 			}
 
 			return  filteredSearchResults ;
 		}
 	).then(
+	  function ( results )
+	  {
+	  	return filterResults( results, params["radius"] );
+	  }
+	).then(
 	  function( results )
 	  {
-	  	response.success( sortStocks( results, params["radius"] ) );
+	  	response.success( sortStocks( results ) );
 	  },
 	  function( error )
 	  {
@@ -133,7 +152,6 @@ function getGeoPoint( params, callback )
 			  {
 
 				var data = googleResponse.data;
-				console.error( "Working !!" );
 
 				if( data.status == "OK")
 				{
@@ -225,24 +243,37 @@ function fixParams( params, callback )
 }
 //============== Fix Params =========================
 
-//============== Sort Stocks ========================
-function sortStocks( stocks, radius )
+
+//============== Filter Results ========================
+function filterResults( stocks, radius )
 {
-	var sortedStocks = stocks.sort( compareByDistance );
 
-	var filteredByRadius = new Array();
+	var filteredStocks = new Array();
+	var repeated = new Array();
 
-	for( var i = 0; i < sortedStocks.length; i++ )
+	for( var i = 0; i < stocks.length; i++ )
 	{
-		console.error( "Rediau " + sortedStocks[i]["distance"]);
-		console.error( "Rediau " + radius);
-		if( sortedStocks[i]["distance"] <= radius )
+		var key = stocks[i]["refKey"];
+
+		console.error( "Ref Key " + key);
+
+		if( stocks[i]["distance"] > radius || exists( repeated[ key ] ) )
 		{
-			filteredByRadius[ filteredByRadius.length ] = sortedStocks[i];
+			continue;
 		}
+
+		filteredStocks[ filteredStocks.length ] = stocks[i];
+		repeated[ key ] = true;
 	}
-	
-	return filteredByRadius;
+
+	return filteredStocks;
+}
+//============== Filter Results ========================
+
+//============== Sort Stocks ========================
+function sortStocks( stocks )
+{	
+	return stocks.sort( compareByDistance );
 }
 //============== Sort Stocks ========================
 

@@ -19,6 +19,7 @@ query.get( request.params.id ).then(
 		ngo.set( "name", request.params.name );
 		ngo.set( "description", request.params.description );
 		ngo.set( "address", request.params.address );
+		ngo.set( "email", request.params.email );
 
 		Parse.Cloud.httpRequest({
 
