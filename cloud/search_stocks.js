@@ -1,5 +1,5 @@
 //================== Create or update Shipment ===================
-Parse.Cloud.define("search_try", function( request, response ) {
+Parse.Cloud.define("search_stocks", function( request, response ) {
 	
 	var params = new Object();
 
