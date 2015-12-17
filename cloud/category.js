@@ -20,3 +20,20 @@ Parse.Cloud.define("category", function(request, response) {
     }
   });
 });
+
+Parse.Cloud.define("categoryWithGroup", function(request, response) {
+  console.log("listing all categories with groups... ")
+  var query = new Parse.Query("Category");
+	query.include("group")
+  //query.equalTo("movie", request.params.movie);
+	//query.select("name");
+  query.find({
+    success: function(results) {
+      console.log("all categories: ", results)
+      response.success(results);
+    },
+    error: function() {
+      response.error("category lookup failed");
+    }
+  });
+});

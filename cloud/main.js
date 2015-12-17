@@ -4,3 +4,4 @@ require('cloud/ngo.js');
 require('cloud/search.js');
 require('cloud/stock.js');
 require('cloud/shipment.js');
+require('cloud/combinedCategorySearch.js');
