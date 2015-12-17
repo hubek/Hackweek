@@ -23,8 +23,10 @@ Parse.Cloud.define("category", function(request, response) {
 
 Parse.Cloud.define("categoryWithGroup", function(request, response) {
   console.log("listing all categories with groups... ")
-  var query = new Parse.Query("Category");
-	query.include("group")
+  //var query = new Parse.Query("Category");
+	//query.include("group")
+	var query = new Parse.Query("Stock");
+	query.include("gender").include("ngo").include("category").include("size");
   //query.equalTo("movie", request.params.movie);
 	//query.select("name");
   query.find({
